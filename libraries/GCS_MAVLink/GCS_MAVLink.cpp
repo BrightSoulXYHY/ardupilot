@@ -26,7 +26,6 @@ This provides some support code and variables for MAVLink enabled sketches
 #include <AP_GPS/AP_GPS.h>
 #include <AP_HAL/AP_HAL.h>
 
-
 #ifdef MAVLINK_SEPARATE_HELPERS
 // Shut up warnings about missing declarations; TODO: should be fixed on
 // mavlink/pymavlink project for when MAVLINK_SEPARATE_HELPERS is defined
@@ -36,10 +35,10 @@ This provides some support code and variables for MAVLink enabled sketches
 #pragma GCC diagnostic pop
 #endif
 
-AP_HAL::UARTDriver	*mavlink_comm_port[MAVLINK_COMM_NUM_BUFFERS];
+AP_HAL::UARTDriver *mavlink_comm_port[MAVLINK_COMM_NUM_BUFFERS];
 bool gcs_alternative_active[MAVLINK_COMM_NUM_BUFFERS];
 
-mavlink_system_t mavlink_system = {7,1};
+mavlink_system_t mavlink_system = {7, 1};
 
 // mask of serial ports disabled to allow for SERIAL_CONTROL
 static uint8_t mavlink_locked_mask;
@@ -55,32 +54,38 @@ const AP_SerialManager *GCS_MAVLINK::serialmanager_p;
  */
 void GCS_MAVLINK::lock_channel(mavlink_channel_t _chan, bool lock)
 {
-    if (!valid_channel(chan)) {
+    if (!valid_channel(chan))
+    {
         return;
     }
-    if (lock) {
-        mavlink_locked_mask |= (1U<<(unsigned)_chan);
-    } else {
-        mavlink_locked_mask &= ~(1U<<(unsigned)_chan);
+    if (lock)
+    {
+        mavlink_locked_mask |= (1U << (unsigned)_chan);
+    }
+    else
+    {
+        mavlink_locked_mask &= ~(1U << (unsigned)_chan);
     }
 }
 
 // return a MAVLink variable type given a AP_Param type
 uint8_t mav_var_type(enum ap_var_type t)
 {
-    if (t == AP_PARAM_INT8) {
-	    return MAVLINK_TYPE_INT8_T;
+    if (t == AP_PARAM_INT8)
+    {
+        return MAVLINK_TYPE_INT8_T;
     }
-    if (t == AP_PARAM_INT16) {
-	    return MAVLINK_TYPE_INT16_T;
+    if (t == AP_PARAM_INT16)
+    {
+        return MAVLINK_TYPE_INT16_T;
     }
-    if (t == AP_PARAM_INT32) {
-	    return MAVLINK_TYPE_INT32_T;
+    if (t == AP_PARAM_INT32)
+    {
+        return MAVLINK_TYPE_INT32_T;
     }
     // treat any others as float
     return MAVLINK_TYPE_FLOAT;
 }
-
 
 /// Check for available transmit space on the nominated MAVLink channel
 ///
@@ -88,16 +93,19 @@ uint8_t mav_var_type(enum ap_var_type t)
 /// @returns		Number of bytes available
 uint16_t comm_get_txspace(mavlink_channel_t chan)
 {
-    if (!valid_channel(chan)) {
+    if (!valid_channel(chan))
+    {
         return 0;
     }
-    if ((1U<<chan) & mavlink_locked_mask) {
+    if ((1U << chan) & mavlink_locked_mask)
+    {
         return 0;
     }
-	int16_t ret = mavlink_comm_port[chan]->txspace();
-	if (ret < 0) {
-		ret = 0;
-	}
+    int16_t ret = mavlink_comm_port[chan]->txspace();
+    if (ret < 0)
+    {
+        ret = 0;
+    }
     return (uint16_t)ret;
 }
 
@@ -107,16 +115,19 @@ uint16_t comm_get_txspace(mavlink_channel_t chan)
 /// @returns		Number of bytes available
 uint16_t comm_get_available(mavlink_channel_t chan)
 {
-    if (!valid_channel(chan)) {
+    if (!valid_channel(chan))
+    {
         return 0;
     }
-    if ((1U<<chan) & mavlink_locked_mask) {
+    if ((1U << chan) & mavlink_locked_mask)
+    {
         return 0;
     }
     int16_t bytes = mavlink_comm_port[chan]->available();
-	if (bytes == -1) {
-		return 0;
-	}
+    if (bytes == -1)
+    {
+        return 0;
+    }
     return (uint16_t)bytes;
 }
 
@@ -125,10 +136,12 @@ uint16_t comm_get_available(mavlink_channel_t chan)
  */
 void comm_send_buffer(mavlink_channel_t chan, const uint8_t *buf, uint8_t len)
 {
-    if (!valid_channel(chan)) {
+    if (!valid_channel(chan))
+    {
         return;
     }
-    if (gcs_alternative_active[chan]) {
+    if (gcs_alternative_active[chan])
+    {
         // an alternative protocol is active
         return;
     }
