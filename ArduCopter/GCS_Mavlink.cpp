@@ -623,16 +623,6 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t *msg)
     switch (msg->msgid)
     {
 
-#if BrightSoul == ENABLED
-    case MAVLINK_MSG_ID_MY_HELLO: // MAV ID: 94 added
-    {
-        mavlink_my_hello_t packet;
-        mavlink_msg_my_hello_decode(msg, &packet);
-        hal.console->printf("Succeed rev MAVLINK_MSG_ID_MY_HELLO:%d", packet.Info_num);
-        break;
-    }
-#endif
-
     case MAVLINK_MSG_ID_HEARTBEAT: // MAV ID: 0
     {
         // We keep track of the last time we received a heartbeat from our GCS for failsafe purposes
@@ -1292,6 +1282,25 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t *msg)
             }
             break;
 
+        case MAV_CMD_MY_FUCK_INFO:
+            if (!copter.flightmode->in_fuck_mode())
+            {
+                gcs().send_text(MAV_SEVERITY_DEBUG, "Not in fuck mode");
+                break;
+            }
+            gcs().send_text(MAV_SEVERITY_DEBUG, "Fuck para:%.3f", packet.param7);
+            result = MAV_RESULT_ACCEPTED;
+            break;
+        case MAV_CMD_MY_FUCK_TAKEOFF:
+            if (!copter.flightmode->in_fuck_mode())
+            {
+                break;
+            }
+            copter.mode_myfuck.my_fuck_change_state(Fuck_Takeoff);
+            my_fuck_set_target_para(packet.param7);
+            gcs().send_text(MAV_SEVERITY_DEBUG, "climb rate:%.3f", packet.param7);
+            result = MAV_RESULT_ACCEPTED;
+            break;
         default:
             result = handle_command_long_message(packet);
             break;
@@ -1742,7 +1751,22 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t *msg)
         copter.g2.toy_mode.handle_message(msg);
         break;
 #endif
-
+#ifdef BS_Modify
+    case MAVLINK_MSG_ID_FUCK:
+    {
+        mavlink_fuck_t packet;
+        mavlink_msg_fuck_decode(msg, &packet);
+        switch (packet.fuck_id)
+        {
+        case 0:
+            gcs().send_text(MAV_SEVERITY_DEBUG, "Fuck test");
+            break;
+        default:
+            break;
+        }
+        break;
+    }
+#endif
     default:
         handle_common_message(msg);
         break;

@@ -65,4 +65,10 @@
 //#define USERHOOK_SLOWLOOP userhook_SlowLoop();            // for code to be run at 3.3hz
 //#define USERHOOK_SUPERSLOWLOOP userhook_SuperSlowLoop();  // for code to be run at 1hz
 //#define USERHOOK_AUXSWITCH ENABLED                        // for code to handle user aux switches
-#define BrightSoul ENABLED
+
+#define BS_Modify
+#define BS_Origin
+#define BS_Add
+#define MODE_FUCK_ENABLED ENABLED
+// #define BS_DEBUG
+#define BS_DEBUG_INFO

@@ -11,20 +11,20 @@
 void setup();
 void loop();
 
-const AP_HAL::HAL& hal = AP_HAL::get_HAL();
+const AP_HAL::HAL &hal = AP_HAL::get_HAL();
 
 /*
   setup one UART at 57600
  */
 static void setup_uart(AP_HAL::UARTDriver *uart, const char *name)
 {
-    if (uart == nullptr) {
+    if (uart == nullptr)
+    {
         // that UART doesn't exist on this platform
         return;
     }
     uart->begin(57600);
 }
-
 
 void setup(void)
 {
@@ -34,16 +34,17 @@ void setup(void)
 
     hal.scheduler->delay(1000); //Ensure that the uartA can be initialized
 
-    setup_uart(hal.uartA, "uartA");  // console
-    setup_uart(hal.uartB, "uartB");  // 1st GPS
-    setup_uart(hal.uartC, "uartC");  // telemetry 1
-    setup_uart(hal.uartD, "uartD");  // telemetry 2
-    setup_uart(hal.uartE, "uartE");  // 2nd GPS
+    setup_uart(hal.uartA, "uartA"); // console
+    setup_uart(hal.uartB, "uartB"); // 1st GPS
+    setup_uart(hal.uartC, "uartC"); // telemetry 1
+    setup_uart(hal.uartD, "uartD"); // telemetry 2
+    setup_uart(hal.uartE, "uartE"); // 2nd GPS
 }
 
 static void test_uart(AP_HAL::UARTDriver *uart, const char *name)
 {
-    if (uart == nullptr) {
+    if (uart == nullptr)
+    {
         // that UART doesn't exist on this platform
         return;
     }

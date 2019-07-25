@@ -2,7 +2,8 @@
 
 // this class is #included into the Copter:: namespace
 
-class Mode {
+class Mode
+{
     friend class Copter;
     friend class AP_Arming_Copter;
     friend class ToyMode;
@@ -12,12 +13,11 @@ class Mode {
     Mode(void);
 
 public:
-
     // Navigation Yaw control
-    class AutoYaw {
+    class AutoYaw
+    {
 
     public:
-
         // yaw(): main product of AutoYaw; the heading:
         float yaw();
 
@@ -40,7 +40,6 @@ public:
                            bool relative_angle);
 
     private:
-
         float look_ahead_yaw();
         float roi_yaw();
 
@@ -67,14 +66,12 @@ public:
 
         // used to reduce update rate to 100hz:
         uint8_t roi_yaw_counter;
-
     };
     static AutoYaw auto_yaw;
 
     bool do_user_takeoff(float takeoff_alt_cm, bool must_navigate);
 
 protected:
-
     virtual bool init(bool ignore_checks) = 0;
     virtual void run() = 0;
 
@@ -97,10 +94,16 @@ protected:
     virtual void run_autopilot() {}
     virtual uint32_t wp_distance() const { return 0; }
     virtual int32_t wp_bearing() const { return 0; }
-    virtual float crosstrack_error() const { return 0.0f;}
+    virtual float crosstrack_error() const { return 0.0f; }
     virtual bool get_wp(Location_Class &loc) { return false; };
     virtual bool in_guided_mode() const { return false; }
 
+#ifdef BS_Modify
+    virtual bool in_fuck_mode() const
+    {
+        return false;
+    }
+#endif
     // pilot input processing
     void get_pilot_desired_lean_angles(float &roll_out, float &pitch_out, float angle_max, float angle_limit) const;
 
@@ -134,15 +137,17 @@ protected:
     ap_t &ap;
 
     // auto-takeoff support; takeoff state is shared across all mode instances
-    class _TakeOff {
+    class _TakeOff
+    {
     public:
         void start(float alt_cm);
         void stop();
-        void get_climb_rates(float& pilot_climb_rate,
-                             float& takeoff_climb_rate);
+        void get_climb_rates(float &pilot_climb_rate,
+                             float &takeoff_climb_rate);
         bool triggered(float target_climb_rate) const;
 
         bool running() const { return _running; }
+
     private:
         bool _running;
         float max_speed;
@@ -187,9 +192,9 @@ protected:
     // end pass-through functions
 };
 
-
 #if MODE_ACRO_ENABLED == ENABLED
-class ModeAcro : public Mode {
+class ModeAcro : public Mode
+{
 
 public:
     // inherit constructor
@@ -204,19 +209,18 @@ public:
     bool allows_arming(bool from_gcs) const override { return true; };
 
 protected:
-
     const char *name() const override { return "ACRO"; }
     const char *name4() const override { return "ACRO"; }
 
     void get_pilot_desired_angle_rates(int16_t roll_in, int16_t pitch_in, int16_t yaw_in, float &roll_out, float &pitch_out, float &yaw_out);
 
 private:
-
 };
 #endif
 
 #if FRAME_CONFIG == HELI_FRAME
-class ModeAcro_Heli : public ModeAcro {
+class ModeAcro_Heli : public ModeAcro
+{
 
 public:
     // inherit constructor
@@ -230,8 +234,8 @@ private:
 };
 #endif
 
-
-class ModeAltHold : public Mode {
+class ModeAltHold : public Mode
+{
 
 public:
     // inherit constructor
@@ -244,21 +248,20 @@ public:
     bool has_manual_throttle() const override { return false; }
     bool allows_arming(bool from_gcs) const override { return true; };
     bool is_autopilot() const override { return false; }
-    bool has_user_takeoff(bool must_navigate) const override {
+    bool has_user_takeoff(bool must_navigate) const override
+    {
         return !must_navigate;
     }
 
 protected:
-
     const char *name() const override { return "ALT_HOLD"; }
     const char *name4() const override { return "ALTH"; }
 
 private:
-
 };
 
-
-class ModeAuto : public Mode {
+class ModeAuto : public Mode
+{
 
 public:
     // inherit constructor
@@ -278,15 +281,15 @@ public:
 
     bool loiter_start();
     void rtl_start();
-    void takeoff_start(const Location& dest_loc);
-    void wp_start(const Vector3f& destination);
-    void wp_start(const Location_Class& dest_loc);
+    void takeoff_start(const Location &dest_loc);
+    void wp_start(const Vector3f &destination);
+    void wp_start(const Location_Class &dest_loc);
     void land_start();
-    void land_start(const Vector3f& destination);
+    void land_start(const Vector3f &destination);
     void circle_movetoedge_start(const Location_Class &circle_center, float radius_m);
     void circle_start();
-    void spline_start(const Vector3f& destination, bool stopped_at_start, AC_WPNav::spline_segment_end_type seg_end_type, const Vector3f& next_spline_destination);
-    void spline_start(const Location_Class& destination, bool stopped_at_start, AC_WPNav::spline_segment_end_type seg_end_type, const Location_Class& next_destination);
+    void spline_start(const Vector3f &destination, bool stopped_at_start, AC_WPNav::spline_segment_end_type seg_end_type, const Vector3f &next_spline_destination);
+    void spline_start(const Location_Class &destination, bool stopped_at_start, AC_WPNav::spline_segment_end_type seg_end_type, const Location_Class &next_destination);
     void nav_guided_start();
 
     bool landing_gear_should_be_deployed() const override;
@@ -298,27 +301,25 @@ public:
     void payload_place_start();
 
     // only out here temporarily
-    bool start_command(const AP_Mission::Mission_Command& cmd);
-    bool verify_command_callback(const AP_Mission::Mission_Command& cmd);
+    bool start_command(const AP_Mission::Mission_Command &cmd);
+    bool verify_command_callback(const AP_Mission::Mission_Command &cmd);
     void exit_mission();
 
     // for GCS_MAVLink to call:
-    bool do_guided(const AP_Mission::Mission_Command& cmd);
+    bool do_guided(const AP_Mission::Mission_Command &cmd);
 
 protected:
-
     const char *name() const override { return "AUTO"; }
     const char *name4() const override { return "AUTO"; }
 
     uint32_t wp_distance() const override;
     int32_t wp_bearing() const override;
-    float crosstrack_error() const override { return wp_nav->crosstrack_error();}
+    float crosstrack_error() const override { return wp_nav->crosstrack_error(); }
     bool get_wp(Location_Class &loc) override;
     void run_autopilot() override;
 
 private:
-
-    bool verify_command(const AP_Mission::Mission_Command& cmd);
+    bool verify_command(const AP_Mission::Mission_Command &cmd);
 
     void takeoff_run();
     void wp_run();
@@ -329,50 +330,50 @@ private:
     void nav_guided_run();
     void loiter_run();
 
-    void payload_place_start(const Vector3f& destination);
+    void payload_place_start(const Vector3f &destination);
     void payload_place_run();
     bool payload_place_run_should_run();
     void payload_place_run_loiter();
     void payload_place_run_descend();
     void payload_place_run_release();
 
-    AutoMode _mode = Auto_TakeOff;   // controls which auto controller is run
+    AutoMode _mode = Auto_TakeOff; // controls which auto controller is run
 
-    Location_Class terrain_adjusted_location(const AP_Mission::Mission_Command& cmd) const;
+    Location_Class terrain_adjusted_location(const AP_Mission::Mission_Command &cmd) const;
 
-    void do_takeoff(const AP_Mission::Mission_Command& cmd);
-    void do_nav_wp(const AP_Mission::Mission_Command& cmd);
-    void do_land(const AP_Mission::Mission_Command& cmd);
-    void do_loiter_unlimited(const AP_Mission::Mission_Command& cmd);
-    void do_circle(const AP_Mission::Mission_Command& cmd);
-    void do_loiter_time(const AP_Mission::Mission_Command& cmd);
-    void do_spline_wp(const AP_Mission::Mission_Command& cmd);
+    void do_takeoff(const AP_Mission::Mission_Command &cmd);
+    void do_nav_wp(const AP_Mission::Mission_Command &cmd);
+    void do_land(const AP_Mission::Mission_Command &cmd);
+    void do_loiter_unlimited(const AP_Mission::Mission_Command &cmd);
+    void do_circle(const AP_Mission::Mission_Command &cmd);
+    void do_loiter_time(const AP_Mission::Mission_Command &cmd);
+    void do_spline_wp(const AP_Mission::Mission_Command &cmd);
 #if NAV_GUIDED == ENABLED
-    void do_nav_guided_enable(const AP_Mission::Mission_Command& cmd);
-    void do_guided_limits(const AP_Mission::Mission_Command& cmd);
+    void do_nav_guided_enable(const AP_Mission::Mission_Command &cmd);
+    void do_guided_limits(const AP_Mission::Mission_Command &cmd);
 #endif
-    void do_nav_delay(const AP_Mission::Mission_Command& cmd);
-    void do_wait_delay(const AP_Mission::Mission_Command& cmd);
-    void do_within_distance(const AP_Mission::Mission_Command& cmd);
-    void do_yaw(const AP_Mission::Mission_Command& cmd);
-    void do_change_speed(const AP_Mission::Mission_Command& cmd);
-    void do_set_home(const AP_Mission::Mission_Command& cmd);
-    void do_roi(const AP_Mission::Mission_Command& cmd);
-    void do_mount_control(const AP_Mission::Mission_Command& cmd);
+    void do_nav_delay(const AP_Mission::Mission_Command &cmd);
+    void do_wait_delay(const AP_Mission::Mission_Command &cmd);
+    void do_within_distance(const AP_Mission::Mission_Command &cmd);
+    void do_yaw(const AP_Mission::Mission_Command &cmd);
+    void do_change_speed(const AP_Mission::Mission_Command &cmd);
+    void do_set_home(const AP_Mission::Mission_Command &cmd);
+    void do_roi(const AP_Mission::Mission_Command &cmd);
+    void do_mount_control(const AP_Mission::Mission_Command &cmd);
 #if CAMERA == ENABLED
-    void do_digicam_configure(const AP_Mission::Mission_Command& cmd);
-    void do_digicam_control(const AP_Mission::Mission_Command& cmd);
+    void do_digicam_configure(const AP_Mission::Mission_Command &cmd);
+    void do_digicam_control(const AP_Mission::Mission_Command &cmd);
 #endif
 #if PARACHUTE == ENABLED
-    void do_parachute(const AP_Mission::Mission_Command& cmd);
+    void do_parachute(const AP_Mission::Mission_Command &cmd);
 #endif
 #if GRIPPER_ENABLED == ENABLED
-    void do_gripper(const AP_Mission::Mission_Command& cmd);
+    void do_gripper(const AP_Mission::Mission_Command &cmd);
 #endif
 #if WINCH_ENABLED == ENABLED
-    void do_winch(const AP_Mission::Mission_Command& cmd);
+    void do_winch(const AP_Mission::Mission_Command &cmd);
 #endif
-    void do_payload_place(const AP_Mission::Mission_Command& cmd);
+    void do_payload_place(const AP_Mission::Mission_Command &cmd);
     void do_RTL(void);
 
     bool verify_takeoff();
@@ -384,43 +385,44 @@ private:
     bool verify_wait_delay();
     bool verify_within_distance();
     bool verify_yaw();
-    bool verify_nav_wp(const AP_Mission::Mission_Command& cmd);
-    bool verify_circle(const AP_Mission::Mission_Command& cmd);
-    bool verify_spline_wp(const AP_Mission::Mission_Command& cmd);
+    bool verify_nav_wp(const AP_Mission::Mission_Command &cmd);
+    bool verify_circle(const AP_Mission::Mission_Command &cmd);
+    bool verify_spline_wp(const AP_Mission::Mission_Command &cmd);
 #if NAV_GUIDED == ENABLED
-    bool verify_nav_guided_enable(const AP_Mission::Mission_Command& cmd);
+    bool verify_nav_guided_enable(const AP_Mission::Mission_Command &cmd);
 #endif
-    bool verify_nav_delay(const AP_Mission::Mission_Command& cmd);
+    bool verify_nav_delay(const AP_Mission::Mission_Command &cmd);
 
     // Loiter control
-    uint16_t loiter_time_max;                // How long we should stay in Loiter Mode for mission scripting (time in seconds)
-    uint32_t loiter_time;                    // How long have we been loitering - The start time in millis
+    uint16_t loiter_time_max; // How long we should stay in Loiter Mode for mission scripting (time in seconds)
+    uint32_t loiter_time;     // How long have we been loitering - The start time in millis
 
     // Delay the next navigation command
-    int32_t nav_delay_time_max;  // used for delaying the navigation commands (eg land,takeoff etc.)
+    int32_t nav_delay_time_max; // used for delaying the navigation commands (eg land,takeoff etc.)
     uint32_t nav_delay_time_start;
 
     // Delay Mission Scripting Command
-    int32_t condition_value;  // used in condition commands (eg delay, change alt, etc.)
+    int32_t condition_value; // used in condition commands (eg delay, change alt, etc.)
     uint32_t condition_start;
 
     LandStateType land_state = LandStateType_FlyToLocation; // records state of land (flying to location, descending)
 
-    struct {
+    struct
+    {
         PayloadPlaceStateType state = PayloadPlaceStateType_Calibrating_Hover_Start; // records state of place (descending, releasing, released, ...)
-        uint32_t hover_start_timestamp; // milliseconds
+        uint32_t hover_start_timestamp;                                              // milliseconds
         float hover_throttle_level;
         uint32_t descend_start_timestamp; // milliseconds
-        uint32_t place_start_timestamp; // milliseconds
+        uint32_t place_start_timestamp;   // milliseconds
         float descend_throttle_level;
         float descend_start_altitude;
         float descend_max; // centimetres
     } nav_payload_place;
-
 };
 
 #if AUTOTUNE_ENABLED == ENABLED
-class ModeAutoTune : public Mode {
+class ModeAutoTune : public Mode
+{
 
 public:
     // inherit constructor
@@ -439,12 +441,10 @@ public:
     void stop();
 
 protected:
-
     const char *name() const override { return "AUTOTUNE"; }
     const char *name4() const override { return "ATUN"; }
 
 private:
-
     bool start(bool ignore_checks);
 
     void autotune_attitude_control();
@@ -474,11 +474,12 @@ private:
 
     void send_step_string();
     const char *level_issue_string() const;
-    const char * type_string() const;
+    const char *type_string() const;
     void announce_state_to_gcs();
     void do_gcs_announcements();
 
-    enum LEVEL_ISSUE {
+    enum LEVEL_ISSUE
+    {
         LEVEL_ISSUE_NONE,
         LEVEL_ISSUE_ANGLE_ROLL,
         LEVEL_ISSUE_ANGLE_PITCH,
@@ -491,91 +492,95 @@ private:
     bool currently_level();
 
     // autotune modes (high level states)
-    enum TuneMode {
-        UNINITIALISED = 0,        // autotune has never been run
-        TUNING = 1,               // autotune is testing gains
-        SUCCESS = 2,              // tuning has completed, user is flight testing the new gains
-        FAILED = 3,               // tuning has failed, user is flying on original gains
+    enum TuneMode
+    {
+        UNINITIALISED = 0, // autotune has never been run
+        TUNING = 1,        // autotune is testing gains
+        SUCCESS = 2,       // tuning has completed, user is flight testing the new gains
+        FAILED = 3,        // tuning has failed, user is flying on original gains
     };
 
     // steps performed while in the tuning mode
-    enum StepType {
-        WAITING_FOR_LEVEL = 0,    // autotune is waiting for vehicle to return to level before beginning the next twitch
-        TWITCHING = 1,            // autotune has begun a twitch and is watching the resulting vehicle movement
-        UPDATE_GAINS = 2          // autotune has completed a twitch and is updating the gains based on the results
+    enum StepType
+    {
+        WAITING_FOR_LEVEL = 0, // autotune is waiting for vehicle to return to level before beginning the next twitch
+        TWITCHING = 1,         // autotune has begun a twitch and is watching the resulting vehicle movement
+        UPDATE_GAINS = 2       // autotune has completed a twitch and is updating the gains based on the results
     };
 
     // things that can be tuned
-    enum AxisType {
-        ROLL = 0,                 // roll axis is being tuned (either angle or rate)
-        PITCH = 1,                // pitch axis is being tuned (either angle or rate)
-        YAW = 2,                  // pitch axis is being tuned (either angle or rate)
+    enum AxisType
+    {
+        ROLL = 0,  // roll axis is being tuned (either angle or rate)
+        PITCH = 1, // pitch axis is being tuned (either angle or rate)
+        YAW = 2,   // pitch axis is being tuned (either angle or rate)
     };
 
     // mini steps performed while in Tuning mode, Testing step
-    enum TuneType {
-        RD_UP = 0,                // rate D is being tuned up
-        RD_DOWN = 1,              // rate D is being tuned down
-        RP_UP = 2,                // rate P is being tuned up
-        SP_DOWN = 3,              // angle P is being tuned down
-        SP_UP = 4                 // angle P is being tuned up
+    enum TuneType
+    {
+        RD_UP = 0,   // rate D is being tuned up
+        RD_DOWN = 1, // rate D is being tuned down
+        RP_UP = 2,   // rate P is being tuned up
+        SP_DOWN = 3, // angle P is being tuned down
+        SP_UP = 4    // angle P is being tuned up
     };
 
-    TuneMode mode                : 2;    // see TuneMode for what modes are allowed
-    bool     pilot_override      : 1;    // true = pilot is overriding controls so we suspend tuning temporarily
-    AxisType axis                : 2;    // see AxisType for which things can be tuned
-    bool     positive_direction  : 1;    // false = tuning in negative direction (i.e. left for roll), true = positive direction (i.e. right for roll)
-    StepType step                : 2;    // see StepType for what steps are performed
-    TuneType tune_type           : 3;    // see TuneType
-    bool     ignore_next         : 1;    // true = ignore the next test
-    bool     twitch_first_iter   : 1;    // true on first iteration of a twitch (used to signal we must step the attitude or rate target)
-    bool     use_poshold         : 1;    // true = enable position hold
-    bool     have_position       : 1;    // true = start_position is value
+    TuneMode mode : 2;           // see TuneMode for what modes are allowed
+    bool pilot_override : 1;     // true = pilot is overriding controls so we suspend tuning temporarily
+    AxisType axis : 2;           // see AxisType for which things can be tuned
+    bool positive_direction : 1; // false = tuning in negative direction (i.e. left for roll), true = positive direction (i.e. right for roll)
+    StepType step : 2;           // see StepType for what steps are performed
+    TuneType tune_type : 3;      // see TuneType
+    bool ignore_next : 1;        // true = ignore the next test
+    bool twitch_first_iter : 1;  // true on first iteration of a twitch (used to signal we must step the attitude or rate target)
+    bool use_poshold : 1;        // true = enable position hold
+    bool have_position : 1;      // true = start_position is value
     Vector3f start_position;
 
-// variables
-    uint32_t override_time;                         // the last time the pilot overrode the controls
-    float    test_rate_min;                         // the minimum angular rate achieved during TESTING_RATE step
-    float    test_rate_max;                         // the maximum angular rate achieved during TESTING_RATE step
-    float    test_angle_min;                        // the minimum angle achieved during TESTING_ANGLE step
-    float    test_angle_max;                        // the maximum angle achieved during TESTING_ANGLE step
-    uint32_t step_start_time;                       // start time of current tuning step (used for timeout checks)
-    uint32_t step_stop_time;                        // start time of current tuning step (used for timeout checks)
-    int8_t   counter;                               // counter for tuning gains
-    float    target_rate, start_rate;               // target and start rate
-    float    target_angle, start_angle;             // target and start angles
-    float    desired_yaw;                           // yaw heading during tune
-    float    rate_max, test_accel_max;              // maximum acceleration variables
+    // variables
+    uint32_t override_time;          // the last time the pilot overrode the controls
+    float test_rate_min;             // the minimum angular rate achieved during TESTING_RATE step
+    float test_rate_max;             // the maximum angular rate achieved during TESTING_RATE step
+    float test_angle_min;            // the minimum angle achieved during TESTING_ANGLE step
+    float test_angle_max;            // the maximum angle achieved during TESTING_ANGLE step
+    uint32_t step_start_time;        // start time of current tuning step (used for timeout checks)
+    uint32_t step_stop_time;         // start time of current tuning step (used for timeout checks)
+    int8_t counter;                  // counter for tuning gains
+    float target_rate, start_rate;   // target and start rate
+    float target_angle, start_angle; // target and start angles
+    float desired_yaw;               // yaw heading during tune
+    float rate_max, test_accel_max;  // maximum acceleration variables
 
-    LowPassFilterFloat  rotation_rate_filt;         // filtered rotation rate in radians/second
+    LowPassFilterFloat rotation_rate_filt; // filtered rotation rate in radians/second
 
-// backup of currently being tuned parameter values
-    float    orig_roll_rp = 0, orig_roll_ri, orig_roll_rd, orig_roll_sp, orig_roll_accel;
-    float    orig_pitch_rp = 0, orig_pitch_ri, orig_pitch_rd, orig_pitch_sp, orig_pitch_accel;
-    float    orig_yaw_rp = 0, orig_yaw_ri, orig_yaw_rd, orig_yaw_rLPF, orig_yaw_sp, orig_yaw_accel;
-    bool     orig_bf_feedforward;
+    // backup of currently being tuned parameter values
+    float orig_roll_rp = 0, orig_roll_ri, orig_roll_rd, orig_roll_sp, orig_roll_accel;
+    float orig_pitch_rp = 0, orig_pitch_ri, orig_pitch_rd, orig_pitch_sp, orig_pitch_accel;
+    float orig_yaw_rp = 0, orig_yaw_ri, orig_yaw_rd, orig_yaw_rLPF, orig_yaw_sp, orig_yaw_accel;
+    bool orig_bf_feedforward;
 
-// currently being tuned parameter values
-    float    tune_roll_rp, tune_roll_rd, tune_roll_sp, tune_roll_accel;
-    float    tune_pitch_rp, tune_pitch_rd, tune_pitch_sp, tune_pitch_accel;
-    float    tune_yaw_rp, tune_yaw_rLPF, tune_yaw_sp, tune_yaw_accel;
+    // currently being tuned parameter values
+    float tune_roll_rp, tune_roll_rd, tune_roll_sp, tune_roll_accel;
+    float tune_pitch_rp, tune_pitch_rd, tune_pitch_sp, tune_pitch_accel;
+    float tune_yaw_rp, tune_yaw_rLPF, tune_yaw_sp, tune_yaw_accel;
 
     uint32_t announce_time;
     float lean_angle;
     float rotation_rate;
     float roll_cd, pitch_cd;
 
-    struct {
+    struct
+    {
         LEVEL_ISSUE issue{LEVEL_ISSUE_NONE};
         float maximum;
         float current;
     } level_problem;
-
 };
 #endif
 
-
-class ModeBrake : public Mode {
+class ModeBrake : public Mode
+{
 
 public:
     // inherit constructor
@@ -592,19 +597,16 @@ public:
     void timeout_to_loiter_ms(uint32_t timeout_ms);
 
 protected:
-
     const char *name() const override { return "BRAKE"; }
     const char *name4() const override { return "BRAK"; }
 
 private:
-
     uint32_t _timeout_start;
     uint32_t _timeout_ms;
-
 };
 
-
-class ModeCircle : public Mode {
+class ModeCircle : public Mode
+{
 
 public:
     // inherit constructor
@@ -619,7 +621,6 @@ public:
     bool is_autopilot() const override { return true; }
 
 protected:
-
     const char *name() const override { return "CIRCLE"; }
     const char *name4() const override { return "CIRC"; }
 
@@ -627,13 +628,12 @@ protected:
     int32_t wp_bearing() const override;
 
 private:
-
     // Circle
     bool pilot_yaw_override = false; // true if pilot is overriding yaw
 };
 
-
-class ModeDrift : public Mode {
+class ModeDrift : public Mode
+{
 
 public:
     // inherit constructor
@@ -648,18 +648,15 @@ public:
     bool is_autopilot() const override { return false; }
 
 protected:
-
     const char *name() const override { return "DRIFT"; }
     const char *name4() const override { return "DRIF"; }
 
 private:
-
     float get_throttle_assist(float velz, float pilot_throttle_scaled);
-
 };
 
-
-class ModeFlip : public Mode {
+class ModeFlip : public Mode
+{
 
 public:
     // inherit constructor
@@ -674,17 +671,13 @@ public:
     bool is_autopilot() const override { return false; }
 
 protected:
-
     const char *name() const override { return "FLIP"; }
     const char *name4() const override { return "FLIP"; }
 
 private:
-
     // Flip
-    Vector3f flip_orig_attitude;         // original vehicle attitude before flip
-
+    Vector3f flip_orig_attitude; // original vehicle attitude before flip
 };
-
 
 #if !HAL_MINIMIZE_FEATURES && OPTFLOW == ENABLED
 /*
@@ -692,7 +685,8 @@ private:
   optical flow directly, avoiding the need for a rangefinder
  */
 
-class ModeFlowHold : public Mode {
+class ModeFlowHold : public Mode
+{
 public:
     // need a constructor for parameters
     ModeFlowHold(void);
@@ -704,7 +698,8 @@ public:
     bool has_manual_throttle() const override { return false; }
     bool allows_arming(bool from_gcs) const override { return true; };
     bool is_autopilot() const override { return false; }
-    bool has_user_takeoff(bool must_navigate) const override {
+    bool has_user_takeoff(bool must_navigate) const override
+    {
         return !must_navigate;
     }
 
@@ -715,9 +710,9 @@ protected:
     const char *name4() const override { return "FHLD"; }
 
 private:
-
     // FlowHold states
-    enum FlowHoldModeState {
+    enum FlowHoldModeState
+    {
         FlowHold_MotorStopped,
         FlowHold_Takeoff,
         FlowHold_Flying,
@@ -743,8 +738,8 @@ private:
     AP_Float flow_max;
     AC_PI_2D flow_pi_xy{0.2, 0.3, 3000, 5, 0.0025};
     AP_Float flow_filter_hz;
-    AP_Int8  flow_min_quality;
-    AP_Int8  brake_rate_dps;
+    AP_Int8 flow_min_quality;
+    AP_Int8 brake_rate_dps;
 
     float quality_filtered;
 
@@ -772,8 +767,8 @@ private:
 };
 #endif // OPTFLOW
 
-
-class ModeGuided : public Mode {
+class ModeGuided : public Mode
+{
 
 public:
     // inherit constructor
@@ -790,11 +785,11 @@ public:
     bool has_user_takeoff(bool must_navigate) const override { return true; }
 
     void set_angle(const Quaternion &q, float climb_rate_cms, bool use_yaw_rate, float yaw_rate_rads);
-    bool set_destination(const Vector3f& destination, bool use_yaw = false, float yaw_cd = 0.0, bool use_yaw_rate = false, float yaw_rate_cds = 0.0, bool yaw_relative = false);
-    bool set_destination(const Location_Class& dest_loc, bool use_yaw = false, float yaw_cd = 0.0, bool use_yaw_rate = false, float yaw_rate_cds = 0.0, bool yaw_relative = false);
+    bool set_destination(const Vector3f &destination, bool use_yaw = false, float yaw_cd = 0.0, bool use_yaw_rate = false, float yaw_rate_cds = 0.0, bool yaw_relative = false);
+    bool set_destination(const Location_Class &dest_loc, bool use_yaw = false, float yaw_cd = 0.0, bool use_yaw_rate = false, float yaw_rate_cds = 0.0, bool yaw_relative = false);
     bool get_wp(Location_Class &loc) override;
-    void set_velocity(const Vector3f& velocity, bool use_yaw = false, float yaw_cd = 0.0, bool use_yaw_rate = false, float yaw_rate_cds = 0.0, bool yaw_relative = false, bool log_request = true);
-    bool set_destination_posvel(const Vector3f& destination, const Vector3f& velocity, bool use_yaw = false, float yaw_cd = 0.0, bool use_yaw_rate = false, float yaw_rate_cds = 0.0, bool yaw_relative = false);
+    void set_velocity(const Vector3f &velocity, bool use_yaw = false, float yaw_cd = 0.0, bool use_yaw_rate = false, float yaw_rate_cds = 0.0, bool yaw_relative = false, bool log_request = true);
+    bool set_destination_posvel(const Vector3f &destination, const Vector3f &velocity, bool use_yaw = false, float yaw_cd = 0.0, bool use_yaw_rate = false, float yaw_rate_cds = 0.0, bool yaw_relative = false);
 
     void limit_clear();
     void limit_init_time_and_pos();
@@ -809,7 +804,6 @@ public:
     void angle_control_run();
 
 protected:
-
     const char *name() const override { return "GUIDED"; }
     const char *name4() const override { return "GUID"; }
 
@@ -818,7 +812,6 @@ protected:
     float crosstrack_error() const override;
 
 private:
-
     void pos_control_start();
     void vel_control_start();
     void posvel_control_start();
@@ -826,16 +819,15 @@ private:
     void pos_control_run();
     void vel_control_run();
     void posvel_control_run();
-    void set_desired_velocity_with_accel_and_fence_limits(const Vector3f& vel_des);
+    void set_desired_velocity_with_accel_and_fence_limits(const Vector3f &vel_des);
     void set_yaw_state(bool use_yaw, float yaw_cd, bool use_yaw_rate, float yaw_rate_cds, bool relative_angle);
 
     // controls which controller is run (pos or vel):
     GuidedMode guided_mode = Guided_TakeOff;
-
 };
 
-
-class ModeGuidedNoGPS : public ModeGuided {
+class ModeGuidedNoGPS : public ModeGuided
+{
 
 public:
     // inherit constructor
@@ -850,16 +842,14 @@ public:
     bool is_autopilot() const override { return true; }
 
 protected:
-
     const char *name() const override { return "GUIDED_NOGPS"; }
     const char *name4() const override { return "GNGP"; }
 
 private:
-
 };
 
-
-class ModeLand : public Mode {
+class ModeLand : public Mode
+{
 
 public:
     // inherit constructor
@@ -877,18 +867,16 @@ public:
     void do_not_use_GPS();
 
 protected:
-
     const char *name() const override { return "LAND"; }
     const char *name4() const override { return "LAND"; }
 
 private:
-
     void gps_run();
     void nogps_run();
 };
 
-
-class ModeLoiter : public Mode {
+class ModeLoiter : public Mode
+{
 
 public:
     // inherit constructor
@@ -904,11 +892,13 @@ public:
     bool has_user_takeoff(bool must_navigate) const override { return true; }
 
 #if PRECISION_LANDING == ENABLED
-    void set_precision_loiter_enabled(bool value) { _precision_loiter_enabled = value; }
+    void set_precision_loiter_enabled(bool value)
+    {
+        _precision_loiter_enabled = value;
+    }
 #endif
 
 protected:
-
     const char *name() const override { return "LOITER"; }
     const char *name4() const override { return "LOIT"; }
 
@@ -921,15 +911,13 @@ protected:
 #endif
 
 private:
-
 #if PRECISION_LANDING == ENABLED
     bool _precision_loiter_enabled;
 #endif
-
 };
 
-
-class ModePosHold : public Mode {
+class ModePosHold : public Mode
+{
 
 public:
     // inherit constructor
@@ -945,12 +933,10 @@ public:
     bool has_user_takeoff(bool must_navigate) const override { return true; }
 
 protected:
-
     const char *name() const override { return "POSHOLD"; }
     const char *name4() const override { return "PHLD"; }
 
 private:
-
     void poshold_update_pilot_lean_angle(float &lean_angle_filtered, float &lean_angle_raw);
     int16_t poshold_mix_controls(float mix_ratio, int16_t first_control, int16_t second_control);
     void poshold_update_brake_angle_from_velocity(int16_t &brake_angle, float velocity);
@@ -958,18 +944,18 @@ private:
     void poshold_get_wind_comp_lean_angles(int16_t &roll_angle, int16_t &pitch_angle);
     void poshold_roll_controller_to_pilot_override();
     void poshold_pitch_controller_to_pilot_override();
-
 };
 
-
-class ModeRTL : public Mode {
+class ModeRTL : public Mode
+{
 
 public:
     // inherit constructor
     using Copter::Mode::Mode;
 
     bool init(bool ignore_checks) override;
-    void run() override {
+    void run() override
+    {
         return run(true);
     }
     void run(bool disarm_on_land);
@@ -989,13 +975,12 @@ public:
     void restart_without_terrain();
 
 protected:
-
     const char *name() const override { return "RTL"; }
     const char *name4() const override { return "RTL "; }
 
     uint32_t wp_distance() const override;
     int32_t wp_bearing() const override;
-    float crosstrack_error() const override { return wp_nav->crosstrack_error();}
+    float crosstrack_error() const override { return wp_nav->crosstrack_error(); }
 
     void descent_start();
     void descent_run();
@@ -1005,7 +990,6 @@ protected:
     void set_descent_target_alt(uint32_t alt) { rtl_path.descent_target.alt = alt; }
 
 private:
-
     void climb_start();
     void return_start();
     void climb_return_run();
@@ -1015,10 +999,11 @@ private:
     void compute_return_target(bool terrain_following_allowed);
 
     // RTL
-    RTLState _state = RTL_InitialClimb;  // records state of rtl (initial climb, returning home, etc)
-    bool _state_complete = false; // set to true if the current state is completed
+    RTLState _state = RTL_InitialClimb; // records state of rtl (initial climb, returning home, etc)
+    bool _state_complete = false;       // set to true if the current state is completed
 
-    struct {
+    struct
+    {
         // NEU w/ Z element alt-above-ekf-origin unless use_terrain is true in which case Z element is alt-above-terrain
         Location_Class origin_point;
         Location_Class climb_target;
@@ -1032,8 +1017,8 @@ private:
     uint32_t _loiter_start_time = 0;
 };
 
-
-class ModeSmartRTL : public ModeRTL {
+class ModeSmartRTL : public ModeRTL
+{
 
 public:
     // inherit constructor
@@ -1051,26 +1036,23 @@ public:
     void exit();
 
 protected:
-
     const char *name() const override { return "SMARTRTL"; }
     const char *name4() const override { return "SRTL"; }
 
     uint32_t wp_distance() const override;
     int32_t wp_bearing() const override;
-    float crosstrack_error() const override { return wp_nav->crosstrack_error();}
+    float crosstrack_error() const override { return wp_nav->crosstrack_error(); }
 
 private:
-
     void wait_cleanup_run();
     void path_follow_run();
     void pre_land_position_run();
     void land();
     SmartRTLState smart_rtl_state = SmartRTL_PathFollow;
-
 };
 
-
-class ModeSport : public Mode {
+class ModeSport : public Mode
+{
 
 public:
     // inherit constructor
@@ -1083,21 +1065,20 @@ public:
     bool has_manual_throttle() const override { return false; }
     bool allows_arming(bool from_gcs) const override { return true; };
     bool is_autopilot() const override { return false; }
-    bool has_user_takeoff(bool must_navigate) const override {
+    bool has_user_takeoff(bool must_navigate) const override
+    {
         return !must_navigate;
     }
 
 protected:
-
     const char *name() const override { return "SPORT"; }
     const char *name4() const override { return "SPRT"; }
 
 private:
-
 };
 
-
-class ModeStabilize : public Mode {
+class ModeStabilize : public Mode
+{
 
 public:
     // inherit constructor
@@ -1112,16 +1093,15 @@ public:
     bool is_autopilot() const override { return false; }
 
 protected:
-
     const char *name() const override { return "STABILIZE"; }
     const char *name4() const override { return "STAB"; }
 
 private:
-
 };
 
 #if FRAME_CONFIG == HELI_FRAME
-class ModeStabilize_Heli : public ModeStabilize {
+class ModeStabilize_Heli : public ModeStabilize
+{
 
 public:
     // inherit constructor
@@ -1131,14 +1111,12 @@ public:
     void run() override;
 
 protected:
-
 private:
-
 };
 #endif
 
-
-class ModeThrow : public Mode {
+class ModeThrow : public Mode
+{
 
 public:
     // inherit constructor
@@ -1153,25 +1131,25 @@ public:
     bool is_autopilot() const override { return false; }
 
     // Throw types
-    enum ThrowModeType {
+    enum ThrowModeType
+    {
         ThrowType_Upward = 0,
         ThrowType_Drop = 1
     };
 
 protected:
-
     const char *name() const override { return "THROW"; }
     const char *name4() const override { return "THRW"; }
 
 private:
-
     bool throw_detected();
     bool throw_position_good();
     bool throw_height_good();
     bool throw_attitude_good();
 
     // Throw stages
-    enum ThrowModeStage {
+    enum ThrowModeStage
+    {
         Throw_Disarmed,
         Throw_Detecting,
         Throw_Uprighting,
@@ -1183,13 +1161,14 @@ private:
     ThrowModeStage prev_stage = Throw_Disarmed;
     uint32_t last_log_ms;
     bool nextmode_attempted;
-    uint32_t free_fall_start_ms;    // system time free fall was detected
-    float free_fall_start_velz;     // vertical velocity when free fall was detected
+    uint32_t free_fall_start_ms; // system time free fall was detected
+    float free_fall_start_velz;  // vertical velocity when free fall was detected
 };
 
 // modes below rely on Guided mode so must be declared at the end (instead of in alphabetical order)
 
-class ModeAvoidADSB : public ModeGuided {
+class ModeAvoidADSB : public ModeGuided
+{
 
 public:
     // inherit constructor
@@ -1203,21 +1182,19 @@ public:
     bool allows_arming(bool from_gcs) const override { return false; }
     bool is_autopilot() const override { return true; }
 
-    bool set_velocity(const Vector3f& velocity_neu);
+    bool set_velocity(const Vector3f &velocity_neu);
 
 protected:
-
     const char *name() const override { return "AVOID_ADSB"; }
     const char *name4() const override { return "AVOI"; }
 
 private:
-
 };
 
-class ModeFollow : public ModeGuided {
+class ModeFollow : public ModeGuided
+{
 
 public:
-
     // inherit constructor
     using Copter::ModeGuided::Mode;
 
@@ -1228,14 +1205,52 @@ public:
     bool has_manual_throttle() const override { return false; }
     bool allows_arming(bool from_gcs) const override { return false; }
     bool is_autopilot() const override { return true; }
+    bool in_fuck_mode() const override { return true; }
 
 protected:
-
     const char *name() const override { return "FOLLOW"; }
     const char *name4() const override { return "FOLL"; }
     uint32_t wp_distance() const override;
     int32_t wp_bearing() const override;
     bool get_wp(Location_Class &loc) override;
 
-    uint32_t last_log_ms;   // system time of last time desired velocity was logging
+    uint32_t last_log_ms; // system time of last time desired velocity was logging
 };
+
+#ifdef BS_Modify
+class ModeFuck : public Mode
+{
+
+public:
+    // inherit constructor
+    using Copter::Mode::Mode;
+
+    //切换至该模式则调用
+    bool init(bool ignore_checks) override;
+    //400hz进行调用
+    void run() override;
+
+    bool requires_GPS() const override { return false; }
+    bool has_manual_throttle() const override { return false; }
+    bool allows_arming(bool from_gcs) const override { return true; };
+    bool is_autopilot() const override { return false; }
+    bool has_user_takeoff(bool must_navigate) const override { return !must_navigate; }
+    bool in_fuck_mode() const { return true; }
+
+protected:
+    //用于logging和display
+    const char *name() const override { return "MY_FUCK"; }
+    const char *name4() const override { return "FUCK"; }
+
+private:
+    FuckModeState myfuck_state;
+    float target_roll, target_pitch, target_yaw_rate, target_climb_rate, takeoff_climb_rate;
+    void my_fuck_init_vel();
+    void my_fuck_MotorStopped();
+    void my_fuck_takeoff_run();
+    void my_fuck_land_run();
+    void my_fuck_flying_run();
+    void my_fuck_change_state(FuckModeState state_change_to);
+    void my_fuck_set_target_para(float target_climb_rate_in);
+};
+#endif
