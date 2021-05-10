@@ -42,6 +42,8 @@ public:
         AP_BeaconType_None   = 0,
         AP_BeaconType_Pozyx  = 1,
         AP_BeaconType_Marvelmind = 2,
+        AP_BeaconType_Nooploop  = 3,
+        AP_BeaconType_BStest  = 5,
         AP_BeaconType_SITL   = 10
     };
 
@@ -65,6 +67,8 @@ public:
 
     // update state of all beacons
     void update(void);
+
+    void get_data(float &dis, float &angel);
 
     // return origin of position estimate system in lat/lon
     bool get_origin(Location &origin_loc) const;

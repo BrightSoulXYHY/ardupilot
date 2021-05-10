@@ -425,13 +425,13 @@ The original Pixhawk1 uses DF13 connectors, and has 14 ports
    </table>
 
 ## RC Input
- 
+
 RC input is configured on the RCIN pin, at one end of the servo rail,
 marked PPM in the above diagram. This pin supports all RC
 protocols. In addition there is a dedicated Spektrum satellite port
 which supports software power control, allowing for binding of
 Spektrum satellite receivers.
- 
+
 ## PWM Output
 
 The Pixhawk1 supports up to 14 PWM outputs. First first 8 outputs (labelled

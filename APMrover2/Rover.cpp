@@ -296,6 +296,24 @@ void Rover::one_second_loop(void)
 
     // send latest param values to wp_nav
     g2.wp_nav.set_turn_params(g.turn_max_g, g2.turn_radius, g2.motors.have_skid_steering());
+
+    // gcs().send_text(MAV_SEVERITY_DEBUG, "enable: %d", g2.beacon.BeaconState.);
+    // gcs().send_text(MAV_SEVERITY_DEBUG, "enable: %d", g2.beacon.enabled());
+
+    // gcs().send_text(MAV_SEVERITY_DEBUG, "dis: %.2f %.2f %.2f %.2f",
+                    // g2.beacon.beacon_distance(0), g2.beacon.beacon_distance(1),
+    //                 g2.beacon.beacon_distance(2), g2.beacon.beacon_distance(3)
+    //                 );
+
+    // Vector3f pos;
+    // float accuracy = 0.0f;
+    // g2.beacon.get_vehicle_position_ned(pos, accuracy);
+    // gcs().send_text(MAV_SEVERITY_DEBUG, "[%d] pos: %.2f %.2f %.2f",
+    //                 (uint8_t)g2.beacon.count(), pos.x, pos.y, pos.z);
+
+    float dis = 0.0f, angel = 0.0f;
+    g2.beacon.get_data(dis, angel);
+    gcs().send_text(MAV_SEVERITY_DEBUG, "%.2f %.2f",dis, angel);
 }
 
 void Rover::update_GPS(void)
