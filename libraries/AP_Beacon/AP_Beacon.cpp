@@ -102,7 +102,7 @@ void AP_Beacon::init(void)
     } else if (_type == AP_BeaconType_Nooploop) {
         _driver = new AP_Beacon_Nooploop(*this, serial_manager);
     } else if (_type == AP_BeaconType_BStest) {
-        _driver = new AP_Beacon_BStest(*this);
+        _driver = new AP_Beacon_BStest(*this, serial_manager);
     }
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
     if (_type == AP_BeaconType_SITL) {
